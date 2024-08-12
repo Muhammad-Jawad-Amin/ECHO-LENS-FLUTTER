@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         centerTitle: true,
         backgroundColor: GlobalColors.themeColor,
         title: Text(
-          'P R O F I L E',
+          'P R O F I L E   P A G E',
           style: TextStyle(
             color: GlobalColors.mainColor,
             fontSize: 25,
@@ -96,7 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: GlobalColors.textColor),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10,),
+      padding: const EdgeInsets.symmetric(
+        vertical: 5,
+        horizontal: 10,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

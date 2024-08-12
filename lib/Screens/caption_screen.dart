@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:echo_lens/Widgets/colors_global.dart';
+import 'package:echo_lens/Widgets/drawer_global.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -31,6 +33,7 @@ class _CaptionScreenState extends State<CaptionScreen> {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
+
     setState(() {
       isPlaying = true;
       isPaused = false;
@@ -66,6 +69,8 @@ class _CaptionScreenState extends State<CaptionScreen> {
   Future<void> _resume() async {
     if (remainingText != null) {
       _speak(remainingText!);
+    } else {
+      _speak(widget.caption);
     }
   }
 
@@ -78,47 +83,180 @@ class _CaptionScreenState extends State<CaptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: GlobalColors.themeColor,
       appBar: AppBar(
-        title: const Text('Caption Screen'),
+        centerTitle: true,
+        backgroundColor: GlobalColors.themeColor,
+        title: Text(
+          'C A P T I O N   P A G E',
+          style: TextStyle(
+            color: GlobalColors.mainColor,
+            fontSize: 25,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Text(
+                'Back',
+                style: TextStyle(
+                  color: GlobalColors
+                      .mainColor, // Change this to match your app's theme
+                  fontSize: 16.0, // Adjust the font size if needed
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 300, // Set the width of the image container
-              height: 300, // Set the height of the image container
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "You can listen the generated caption by playing, pausing and stoping the audio.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: GlobalColors.mainColor,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: widget.imageFile == null && widget.imageBytes == null
-                  ? const Text('No image available.')
-                  : kIsWeb
-                      ? Image.memory(widget.imageBytes!, fit: BoxFit.contain)
-                      : Image.file(widget.imageFile!, fit: BoxFit.contain),
-            ),
-            const SizedBox(height: 20),
-            Text(widget.caption),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                  onPressed: isPlaying ? _pause : _resume,
+              const SizedBox(
+                height: 30,
+              ),
+              Container(
+                width: 300, // Set the width of the image container
+                height: 300, // Set the height of the image container
+                decoration: BoxDecoration(
+                  border: Border.all(color: GlobalColors.mainColor),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: GlobalColors.mainColor.withOpacity(0.25),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.stop),
-                  onPressed: _stop,
+                child: widget.imageFile == null && widget.imageBytes == null
+                    ? const Text('No image available.')
+                    : kIsWeb
+                        ? Image.memory(widget.imageBytes!, fit: BoxFit.contain)
+                        : Image.file(widget.imageFile!, fit: BoxFit.contain),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                margin: const EdgeInsets.all(30),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: GlobalColors.mainColor),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.replay),
-                  onPressed: _replay,
+                child: Column(
+                  children: [
+                    Text(
+                      "GENERATED CAPTION",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: GlobalColors.mainColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      widget.caption,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: GlobalColors.textColor,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 15),
+              Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: GlobalColors.mainColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "AUDIO CONTROLLER",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: GlobalColors.mainColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: GlobalColors.mainColor),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: IconButton(
+                            color: GlobalColors.textColor,
+                            icon: Icon(
+                                isPlaying ? Icons.pause : Icons.play_arrow),
+                            onPressed: isPlaying ? _pause : _resume,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: GlobalColors.mainColor),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: IconButton(
+                            color: GlobalColors.textColor,
+                            icon: const Icon(Icons.stop),
+                            onPressed: _stop,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: GlobalColors.mainColor),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: IconButton(
+                            color: GlobalColors.textColor,
+                            icon: const Icon(Icons.replay),
+                            onPressed: _replay,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

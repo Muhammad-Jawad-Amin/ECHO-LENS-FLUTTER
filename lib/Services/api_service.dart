@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String apiUrl = 'http://192.168.10.13:5000/generate_caption';
+  static const String apiUrl = 'http://192.168.10.3:5000/generate_caption';
 
   static Future<String?> generateCaption(File image) async {
     final request = http.MultipartRequest('POST', Uri.parse(apiUrl));

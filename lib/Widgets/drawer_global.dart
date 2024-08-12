@@ -1,3 +1,4 @@
+import 'package:echo_lens/Screens/aboutus_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:echo_lens/Screens/home_screen.dart';
 import 'package:echo_lens/Screens/login_screen.dart';
@@ -71,6 +72,31 @@ class DrawerGlobal extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30, bottom: 10),
+                child: ListTile(
+                  title: Text(
+                    "A B O U T   U S",
+                    style: TextStyle(
+                      color: GlobalColors.mainColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  leading: Icon(
+                    Icons.info,
+                    color: GlobalColors.mainColor,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutUsScreen(),
                       ),
                     );
                   },

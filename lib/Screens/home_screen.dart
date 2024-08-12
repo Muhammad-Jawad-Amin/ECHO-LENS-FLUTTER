@@ -1,15 +1,16 @@
 import 'dart:io';
-import 'package:echo_lens/Screens/login_screen.dart';
-import 'package:echo_lens/Widgets/drawer_global.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:echo_lens/Widgets/drawer_global.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../services/auth_service.dart';
-import '../services/storage_service.dart';
-import '../services/firestore_service.dart';
-import '../services/api_service.dart';
-import 'caption_screen.dart';
+import 'package:echo_lens/Services/auth_service.dart';
+import 'package:echo_lens/Services/storage_service.dart';
+import 'package:echo_lens/Services/firestore_service.dart';
+import 'package:echo_lens/Services/api_service.dart';
+import 'package:echo_lens/Screens/caption_screen.dart';
+import 'package:echo_lens/Widgets/colors_global.dart';
+import 'package:echo_lens/Widgets/button_global.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,10 +29,25 @@ class _HomeScreenState extends State<HomeScreen> {
   final StorageService _storageService = StorageService();
   final FirestoreService _firestoreService = FirestoreService();
 
+  void showerrormessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: GlobalColors.textColor,
+      ),
+    );
+  }
+
   // Method to pick an image from the gallery
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(BuildContext context, bool camera) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile;
+
+    if (camera) {
+      pickedFile = await picker.pickImage(source: ImageSource.camera);
+    } else {
+      pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    }
 
     if (pickedFile != null) {
       if (kIsWeb) {
@@ -44,12 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         // For mobile, use File
         setState(() {
-          _imageFile = File(pickedFile.path);
+          _imageFile = File(pickedFile!.path);
           _imageBytes = null; // Clear bytes reference on mobile
         });
       }
     } else {
-      print('No image selected.');
+      if (!context.mounted) return;
+      showerrormessage(context, 'No image selected.');
     }
   }
 
@@ -59,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Check internet connectivity
     var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none) && mounted) {
+    if (connectivityResult == ConnectivityResult.none && mounted) {
       // No internet connection
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -144,63 +161,127 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Image Picker'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _authService.signOut();
-              if (mounted) {
-                Navigator.of(context).pop();
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
-              }
-            },
-          ),
-        ],
-      ),
+      backgroundColor: GlobalColors.themeColor,
       drawer: const DrawerGlobal(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 300, // Set the width of the image container
-              height: 300, // Set the height of the image container
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _imageFile == null && _imageBytes == null
-                  ? const Center(child: Text('No image selected.'))
-                  : kIsWeb
-                      ? Image.memory(_imageBytes!, fit: BoxFit.contain)
-                      : Image.file(_imageFile!, fit: BoxFit.contain),
-            ),
-            const SizedBox(height: 20),
-            if (_isLoading) // Display the loading indicator while generating caption
-              const CircularProgressIndicator(),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: const Text('Pick Image'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _clearImage,
-              child: const Text('Clear Image'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _generateCaption,
-              child: const Text('Generate Caption'),
-            ),
-          ],
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: GlobalColors.themeColor,
+        title: Text(
+          'H O M E   P A G E',
+          style: TextStyle(
+            color: GlobalColors.mainColor,
+            fontSize: 25,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              color:
+                  GlobalColors.mainColor, // Custom color for the hamburger icon
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Open the drawer
+              },
+            );
+          },
+        ),
+      ),
+      body: Stack(
+        children: [
+          // The main content of the screen
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "Pick or click your desired image and then generate a caption.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: GlobalColors.mainColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Container(
+                      width: 300, // Set the width of the image container
+                      height: 300, // Set the height of the image container
+                      decoration: BoxDecoration(
+                        border: Border.all(color: GlobalColors.mainColor),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: GlobalColors.mainColor.withOpacity(0.25),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                      child: _imageFile == null && _imageBytes == null
+                          ? Center(
+                              child: Text(
+                                'No image selected.',
+                                style: TextStyle(
+                                  color: GlobalColors.mainColor,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            )
+                          : kIsWeb
+                              ? Image.memory(_imageBytes!, fit: BoxFit.contain)
+                              : Image.file(_imageFile!, fit: BoxFit.contain),
+                    ),
+                    const SizedBox(height: 40),
+                    ButtonGlobal(
+                      buttontext: 'Pick Image From Gallery',
+                      textsize: 20,
+                      onPressed: () {
+                        _pickImage(context, false);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ButtonGlobal(
+                      buttontext: 'Click Image Using Camera',
+                      textsize: 20,
+                      onPressed: () {
+                        _pickImage(context, true);
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ButtonGlobal(
+                      buttontext: 'Clear Image',
+                      textsize: 20,
+                      onPressed: _clearImage,
+                    ),
+                    const SizedBox(height: 10),
+                    ButtonGlobal(
+                      buttontext: 'Generate Caption',
+                      textsize: 20,
+                      onPressed: _generateCaption,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // The loading indicator with a modal barrier
+          if (_isLoading)
+            ModalBarrier(
+              dismissible: false,
+              color: Colors.black.withOpacity(0.5),
+            ),
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(
+                color: GlobalColors.mainColor,
+              ),
+            ),
+        ],
       ),
     );
   }

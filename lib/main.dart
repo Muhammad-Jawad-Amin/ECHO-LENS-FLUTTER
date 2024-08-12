@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:echo_lens/Screens/splash_screen.dart';
 import 'package:echo_lens/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
-import 'package:echo_lens/Screens/login_screen.dart';
-import 'package:echo_lens/Services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,15 +16,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Image Caption Generator',
+    return const MaterialApp(
+      title: 'ECHO LENS',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: AuthService().currentUser != null
-          ? const HomeScreen()
-          : const LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }

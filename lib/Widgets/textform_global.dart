@@ -1,23 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
 
-class TextFormGlobal extends StatelessWidget {
+class TextFormGlobal extends StatefulWidget {
   const TextFormGlobal({
     super.key,
     required this.controller,
     required this.text,
     required this.textInputType,
-    required this.obscure,
     this.readonly = false,
+    this.password = false,
     this.ontap,
   });
 
   final TextEditingController controller;
   final String text;
   final TextInputType textInputType;
-  final bool obscure;
   final bool readonly;
+  final bool password;
   final VoidCallback? ontap;
+
+  @override
+  State<TextFormGlobal> createState() => _TextFormGlobalState();
+}
+
+class _TextFormGlobalState extends State<TextFormGlobal> {
+  late bool isObsecurePass;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.password) {
+      isObsecurePass = true;
+    } else {
+      isObsecurePass = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,20 +54,34 @@ class TextFormGlobal extends StatelessWidget {
             )
           ]),
       child: TextFormField(
-        readOnly: readonly,
-        onTap: ontap,
-        controller: controller,
-        keyboardType: textInputType,
-        obscureText: obscure,
+        readOnly: widget.readonly,
+        onTap: widget.ontap,
+        controller: widget.controller,
+        keyboardType: widget.textInputType,
+        obscureText: isObsecurePass,
         cursorColor: GlobalColors.mainColor,
         decoration: InputDecoration(
-            hintText: text,
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(0),
-            hintStyle: TextStyle(
-              height: 1,
-              color: Colors.grey.shade700,
-            )),
+          hintText: widget.text,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(0),
+          hintStyle: TextStyle(
+            height: 1,
+            color: Colors.grey.shade700,
+          ),
+          suffixIcon: widget.password
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isObsecurePass = !isObsecurePass;
+                    });
+                  },
+                  icon: Icon(
+                    isObsecurePass ? Icons.visibility_off : Icons.visibility,
+                    color: GlobalColors.mainColor,
+                  ),
+                )
+              : null,
+        ),
         style: TextStyle(
           color: GlobalColors.textColor,
         ),

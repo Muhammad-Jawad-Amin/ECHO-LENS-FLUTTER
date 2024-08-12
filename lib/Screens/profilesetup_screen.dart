@@ -1,4 +1,5 @@
 import 'package:echo_lens/Services/firestore_service.dart';
+import 'package:echo_lens/Services/validatiors.dart';
 import 'package:flutter/material.dart';
 import 'package:echo_lens/Screens/home_screen.dart';
 import 'package:echo_lens/services/auth_service.dart';
@@ -26,6 +27,20 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
   TextEditingController address = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
 
+  void showerrormessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: GlobalColors.themeColor,
+          ),
+        ),
+        backgroundColor: GlobalColors.mainColor,
+      ),
+    );
+  }
+
   Future<void> showCalender() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -49,50 +64,43 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
     }
   }
 
-  Future<void> saveProfile(context) async {
+  Future<void> saveProfile(BuildContext context) async {
     try {
       User? user = authService.currentUser;
       if (user != null) {
-        // Preparing the data to be saved
-        Map<String, dynamic> userdata = {
-          'email': widget.email,
-          'fname': fname.text,
-          'lname': lname.text,
-          'address': address.text,
-          'dateofbirth': dateOfBirth.text,
-        };
+        if (!Validators.isValidName(fname.text)) {
+          showerrormessage(context, "Please enter a valid First Name.");
+        } else if (!Validators.isValidName(lname.text)) {
+          showerrormessage(context, "Please enter a valid Last Name.");
+        } else {
+          // Preparing the data to be saved
+          Map<String, dynamic> userdata = {
+            'email': widget.email,
+            'fname': fname.text,
+            'lname': lname.text,
+            'address': address.text,
+            'dateofbirth': dateOfBirth.text,
+          };
 
-        firestoreService.saveUserData(userdata);
+          firestoreService.saveUserData(userdata);
 
-        // Displaying a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: const Text('Success !!. Profile updated successfully.'),
-              backgroundColor: GlobalColors.textColor,
-              duration: const Duration(seconds: 2)),
-        );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
+          // Displaying a success message
+          showerrormessage(
+              context, 'Success !!. Profile updated successfully.');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          );
+        }
       } else {
         // Displaying an error message if the user is not logged in
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Error !!. No logged in user found.'),
-            backgroundColor: GlobalColors.textColor,
-          ),
-        );
+        showerrormessage(context, 'Error !!. No logged in User found.');
       }
     } catch (e) {
       // Displaying an error message in case of failure
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error !!. Failed to update profile ${e.toString()}.'),
-          backgroundColor: GlobalColors.textColor,
-        ),
-      );
+      showerrormessage(
+          context, 'Error !!. Failed to update profile ${e.toString()}.');
     }
   }
 
@@ -130,28 +138,24 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                   controller: fname,
                   text: 'First Name',
                   textInputType: TextInputType.text,
-                  obscure: false,
                 ),
                 const SizedBox(height: 15),
                 TextFormGlobal(
                   controller: lname,
                   text: 'Last Name',
                   textInputType: TextInputType.text,
-                  obscure: false,
                 ),
                 const SizedBox(height: 15),
                 TextFormGlobal(
                   controller: address,
                   text: 'Address',
                   textInputType: TextInputType.text,
-                  obscure: false,
                 ),
                 const SizedBox(height: 15),
                 TextFormGlobal(
                   controller: dateOfBirth,
                   text: 'Date of Birth',
                   textInputType: TextInputType.datetime,
-                  obscure: false,
                   readonly: true,
                   ontap: showCalender,
                 ),

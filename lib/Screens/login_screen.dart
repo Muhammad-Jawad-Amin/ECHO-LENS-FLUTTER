@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:echo_lens/Screens/home_screen.dart';
 import 'package:echo_lens/Screens/profilesetup_screen.dart';
 import 'package:echo_lens/Screens/signup_screen.dart';
 import 'package:echo_lens/Services/firestore_service.dart';
+import 'package:echo_lens/Services/validatiors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:echo_lens/Widgets/button_global.dart';
 import 'package:echo_lens/Widgets/textform_global.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
-import '../Services/auth_service.dart';
+import 'package:echo_lens/Services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,64 +24,86 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
-  Future<void> signIn(context) async {
-    try {
-      User? user = await authService.login(email.text, password.text);
-
-      if (user != null) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
+  void showerrormessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: GlobalColors.themeColor,
           ),
-        );
-      }
-    } on FirebaseAuthException {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-              'Could not LogIn. Check your Email & Password then Try Again.'),
-          backgroundColor: GlobalColors.textColor,
+        ),
+        backgroundColor: GlobalColors.mainColor,
+      ),
+    );
+  }
+
+  void changescreen(BuildContext context, bool userexist, String email) {
+    if (userexist) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
         ),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              const Text('Could not LogIn to your account. Try again later.'),
-          backgroundColor: GlobalColors.textColor,
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => UserProfileSetup(email: email),
         ),
       );
     }
   }
 
-  Future<void> _signInWithGoogle(BuildContext context) async {
-    try {
-      User? user = await authService.loginWithGoogle();
-      if (user != null) {
-        bool isuserexist = await firestoreService.isUserDataExists(user.uid);
-        if (isuserexist) {
-           if(!context.mounted) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ),
-          );
+  Future<void> signIn(BuildContext context) async {
+    if (!Validators.isValidEmail(email.text)) {
+      showerrormessage(context, 'Please enter a valid Email.');
+    } else if (!Validators.isValidPassword(password.text)) {
+      showerrormessage(context,
+          'Enter 8-Charater Password contaning at least: 1 Capital, 1 Small Letter & 1 Special Character.');
+    } else {
+      try {
+        User? user = await authService.login(email.text, password.text);
+        if (user != null) {
+          bool isuserexist = await firestoreService.isUserDataExists(user.uid);
+          if (!context.mounted) return;
+          changescreen(context, isuserexist, user.email!);
         } else {
-          // Handle successful sign-in
-          if(!context.mounted) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => UserProfileSetup(email: user.email!),
-            ),
+          if (!context.mounted) return;
+          showerrormessage(
+            context,
+            'Could not LogIn. Check your Email & Password then Try Again.',
           );
         }
+      } on FirebaseAuthException {
+        showerrormessage(context,
+            'Could not LogIn. Check your Email & Password then Try Again.');
+      } catch (e) {
+        showerrormessage(
+            context, 'Could not LogIn to your account. Try again later.');
+      }
+    }
+  }
+
+  Future<void> _logInWithGoogle(BuildContext context) async {
+    try {
+      User? user = await authService.loginWithGoogle();
+
+      if (user != null) {
+        bool isuserexist = await firestoreService.isUserDataExists(user.uid);
+        if (!context.mounted) return;
+        changescreen(context, isuserexist, user.email!);
+      } else {
+        if (!context.mounted) return;
+        showerrormessage(
+          context,
+          'Could not LogIn with Google. Please try again later.',
+        );
       }
     } catch (e) {
-       if(!context.mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              const Text('An error occured. Could not sign in with Google.'),
+          content: const Text('An error occured. Could not LogIn with Google.'),
           backgroundColor: GlobalColors.textColor,
         ),
       );
@@ -127,7 +150,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: email,
                   text: 'Email',
                   textInputType: TextInputType.emailAddress,
-                  obscure: false,
                 ),
                 const SizedBox(
                   height: 15,
@@ -137,13 +159,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: password,
                   text: 'Password',
                   textInputType: TextInputType.visiblePassword,
-                  obscure: true,
+                  password: true,
                 ),
                 const SizedBox(
                   height: 35,
                 ),
                 ButtonGlobal(
-                  buttontext: 'Sign In',
+                  buttontext: 'LOG IN',
                   onPressed: () {
                     signIn(context);
                   },
@@ -172,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
-                            await _signInWithGoogle(context);
+                            await _logInWithGoogle(context);
                           },
                           child: Container(
                             height: 55,
@@ -191,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 30,
                                 ),
                                 Text(
-                                  "     Sign In with Google",
+                                  "     LOG IN WITH GOOGLE",
                                   style: TextStyle(
                                     color: GlobalColors.textColor,
                                     fontSize: 20,
@@ -231,9 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: InkWell(
                 child: Text(
-                  'Signup',
+                  'SignUp',
                   style: TextStyle(
-                    color: GlobalColors.textColor,
+                    color: GlobalColors.mainColor,
                     fontWeight: FontWeight.w900,
                   ),
                 ),

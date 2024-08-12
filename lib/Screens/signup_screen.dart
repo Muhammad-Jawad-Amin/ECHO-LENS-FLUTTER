@@ -1,8 +1,9 @@
-import 'package:echo_lens/Screens/home_screen.dart';
-import 'package:echo_lens/Services/firestore_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:echo_lens/Screens/home_screen.dart';
+import 'package:echo_lens/Services/firestore_service.dart';
+import 'package:echo_lens/Services/validatiors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:echo_lens/Screens/profilesetup_screen.dart';
 import 'package:echo_lens/Screens/login_screen.dart';
 import 'package:echo_lens/Widgets/textform_global.dart';
@@ -24,25 +25,32 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confpasswordController = TextEditingController();
 
+  void showerrormessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: GlobalColors.themeColor,
+          ),
+        ),
+        backgroundColor: GlobalColors.mainColor,
+      ),
+    );
+  }
+
   Future<void> signup(BuildContext context) async {
     String email = emailController.text;
     String password = passwordController.text;
     String confpassword = confpasswordController.text;
 
-    if (password.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Password must be 8 or more charaters long.'),
-          backgroundColor: GlobalColors.textColor,
-        ),
-      );
+    if (!Validators.isValidEmail(email)) {
+      showerrormessage(context, 'Please enter a valid Email.');
+    } else if (!Validators.isValidPassword(password)) {
+      showerrormessage(context,
+          'Enter 8-Charater Password contaning at least: 1 Capital, 1 Small Letter & 1 Special Character.');
     } else if (password != confpassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Password & Confirm-Password must be same.'),
-          backgroundColor: GlobalColors.textColor,
-        ),
-      );
+      showerrormessage(context, 'Password & Confirm-Password must be same.');
     } else {
       try {
         User? user = await authService.signUp(
@@ -62,31 +70,25 @@ class _SignupScreenState extends State<SignupScreen> {
         if (e.code == 'email-already-in-use') {
           // Show error message that email is already in use
           if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                  'Could not SignUp. Account already exists with this emal.'),
-              backgroundColor: GlobalColors.themeColor,
-            ),
-          );
+          showerrormessage(context,
+              'Could not SignUp. Account already exists with this emal.');
         } else {
           // Handle other errors
           if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('An error occured, please try again later.'),
-              backgroundColor: GlobalColors.themeColor,
-            ),
-          );
+          showerrormessage(
+              context, 'An error occured, please try again later.');
         }
-        // Handle error
+      } catch (e) {
+        if (!context.mounted) return;
+        showerrormessage(context, 'An error occured, please try again later.');
       }
     }
   }
 
-  Future<void> _signInWithGoogle(BuildContext context) async {
+  Future<void> _signUpWithGoogle(BuildContext context) async {
     try {
       User? user = await authService.loginWithGoogle();
+
       if (user != null) {
         bool isuserexist = await firestoreService.isUserDataExists(user.uid);
         if (isuserexist) {
@@ -105,14 +107,20 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           );
         }
+      } else {
+        if (!context.mounted) return;
+        showerrormessage(
+          context,
+          'Could not SignUp with Google. Please try again later.',
+        );
       }
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              const Text('An error occured. Could not sign in with Google.'),
-          backgroundColor: GlobalColors.themeColor,
+              const Text('An error occured. Could not SignUp with Google.'),
+          backgroundColor: GlobalColors.textColor,
         ),
       );
     }
@@ -159,7 +167,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: emailController,
                   text: 'Email',
                   textInputType: TextInputType.emailAddress,
-                  obscure: false,
                 ),
 
                 const SizedBox(
@@ -170,7 +177,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: passwordController,
                   text: 'Password',
                   textInputType: TextInputType.visiblePassword,
-                  obscure: true,
+                  password: true,
                 ),
 
                 const SizedBox(
@@ -181,14 +188,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: confpasswordController,
                   text: 'Confirm Password',
                   textInputType: TextInputType.visiblePassword,
-                  obscure: true,
+                  password: true,
                 ),
 
                 const SizedBox(
                   height: 35,
                 ),
                 ButtonGlobal(
-                  buttontext: 'Sign Up',
+                  buttontext: 'SIGN UP',
                   onPressed: () {
                     signup(context);
                   },
@@ -217,7 +224,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
-                            await _signInWithGoogle(context);
+                            await _signUpWithGoogle(context);
                           },
                           child: Container(
                             height: 55,
@@ -236,7 +243,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   height: 30,
                                 ),
                                 Text(
-                                  "     Sign In with Google",
+                                  "     SIGN UP WITH GOOGLE",
                                   style: TextStyle(
                                     color: GlobalColors.textColor,
                                     fontSize: 20,
@@ -278,8 +285,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Text(
                   'Login',
                   style: TextStyle(
-                      color: GlobalColors.textColor,
-                      fontWeight: FontWeight.w900),
+                    color: GlobalColors.mainColor,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             )
