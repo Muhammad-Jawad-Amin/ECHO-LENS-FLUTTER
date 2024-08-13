@@ -1,4 +1,5 @@
 import 'package:echo_lens/Screens/aboutus_screen.dart';
+import 'package:echo_lens/Screens/history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:echo_lens/Screens/home_screen.dart';
 import 'package:echo_lens/Screens/login_screen.dart';
@@ -72,6 +73,31 @@ class DrawerGlobal extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30, bottom: 10),
+                child: ListTile(
+                  title: Text(
+                    "H I S T O R Y",
+                    style: TextStyle(
+                      color: GlobalColors.mainColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  leading: Icon(
+                    Icons.history,
+                    color: GlobalColors.mainColor,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HistoryScreen(),
                       ),
                     );
                   },

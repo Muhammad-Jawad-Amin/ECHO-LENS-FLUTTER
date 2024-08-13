@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String apiUrl = 'http://192.168.10.3:5000/generate_caption';
+  static const String apiUrl =
+      'https://perfect-vervet-kind.ngrok-free.app/generate_caption';
 
   static Future<String?> generateCaption(File image) async {
     final request = http.MultipartRequest('POST', Uri.parse(apiUrl));
@@ -16,7 +17,6 @@ class ApiService {
       final data = json.decode(responseData);
       return data['caption'];
     } else {
-      print('Error generating caption: ${response.statusCode}');
       return null;
     }
   }
@@ -33,7 +33,6 @@ class ApiService {
       final data = json.decode(responseData);
       return data['caption'];
     } else {
-      print('Error generating caption: ${response.statusCode}');
       return null;
     }
   }

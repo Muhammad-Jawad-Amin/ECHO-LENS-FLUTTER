@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:echo_lens/Widgets/colors_global.dart';
-import 'package:echo_lens/Widgets/drawer_global.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -8,10 +7,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 class CaptionScreen extends StatefulWidget {
   final File? imageFile;
   final Uint8List? imageBytes;
+  final Widget? image;
   final String caption;
 
-  const CaptionScreen(
-      {super.key, this.imageFile, this.imageBytes, required this.caption});
+  const CaptionScreen({
+    super.key,
+    this.imageFile,
+    this.imageBytes,
+    this.image,
+    required this.caption,
+  });
 
   @override
   State<CaptionScreen> createState() => _CaptionScreenState();
@@ -27,6 +32,12 @@ class _CaptionScreenState extends State<CaptionScreen> {
   void initState() {
     super.initState();
     _speak(widget.caption);
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
   }
 
   Future<void> _speak(String text) async {
@@ -80,6 +91,20 @@ class _CaptionScreenState extends State<CaptionScreen> {
     _speak(widget.caption);
   }
 
+  Widget? getImagetoDisplay() {
+    if (widget.imageFile == null &&
+        widget.imageBytes == null &&
+        widget.image == null) {
+      return const Text('No image available.');
+    } else if (kIsWeb && widget.imageBytes != null && widget.image == null) {
+      return Image.memory(widget.imageBytes!, fit: BoxFit.cover);
+    } else if (widget.imageFile != null && widget.image == null) {
+      return Image.file(widget.imageFile!, fit: BoxFit.cover);
+    } else {
+      return widget.image;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +116,7 @@ class _CaptionScreenState extends State<CaptionScreen> {
           'C A P T I O N   P A G E',
           style: TextStyle(
             color: GlobalColors.mainColor,
-            fontSize: 25,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -99,18 +124,17 @@ class _CaptionScreenState extends State<CaptionScreen> {
           onTap: () {
             Navigator.of(context).pop();
           },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Text(
-                'Back',
-                style: TextStyle(
-                  color: GlobalColors
-                      .mainColor, // Change this to match your app's theme
-                  fontSize: 16.0, // Adjust the font size if needed
-                ),
-              ),
-            ),
+          child: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.arrow_back),
+                color: GlobalColors
+                    .mainColor, // Custom color for the hamburger icon
+                onPressed: () {
+                  Navigator.of(context).pop(); // Open the drawer
+                },
+              );
+            },
           ),
         ),
       ),
@@ -124,7 +148,7 @@ class _CaptionScreenState extends State<CaptionScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: GlobalColors.mainColor,
-                  fontSize: 25,
+                  fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -144,11 +168,7 @@ class _CaptionScreenState extends State<CaptionScreen> {
                     ),
                   ],
                 ),
-                child: widget.imageFile == null && widget.imageBytes == null
-                    ? const Text('No image available.')
-                    : kIsWeb
-                        ? Image.memory(widget.imageBytes!, fit: BoxFit.contain)
-                        : Image.file(widget.imageFile!, fit: BoxFit.contain),
+                child: getImagetoDisplay(),
               ),
               const SizedBox(height: 15),
               Container(

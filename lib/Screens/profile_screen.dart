@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'P R O F I L E   P A G E',
           style: TextStyle(
             color: GlobalColors.mainColor,
-            fontSize: 25,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),

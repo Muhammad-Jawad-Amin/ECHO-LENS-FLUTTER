@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Check internet connectivity
     var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none && mounted) {
+    if (connectivityResult.contains(ConnectivityResult.none) && mounted) {
       // No internet connection
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         caption = await ApiService.generateCaptionFromBytes(_imageBytes!);
       }
 
-      if (caption != null && mounted) {
+      if (caption != null) {
         // Upload image to Firebase Storage
         imageUrl = await _storageService.uploadImage(user.uid, _imageFile!);
 
@@ -137,7 +137,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     } catch (e) {
-      print('Error generating caption: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
@@ -170,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'H O M E   P A G E',
           style: TextStyle(
             color: GlobalColors.mainColor,
-            fontSize: 25,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -202,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: GlobalColors.mainColor,
-                        fontSize: 25,
+                        fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -233,8 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             )
                           : kIsWeb
-                              ? Image.memory(_imageBytes!, fit: BoxFit.contain)
-                              : Image.file(_imageFile!, fit: BoxFit.contain),
+                              ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                              : Image.file(_imageFile!, fit: BoxFit.cover),
                     ),
                     const SizedBox(height: 40),
                     ButtonGlobal(

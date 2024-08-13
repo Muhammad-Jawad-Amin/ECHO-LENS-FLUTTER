@@ -9,6 +9,8 @@ pluginManagement {
 
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
+    ext.kotlin_version = '1.9.0' // Modified By Me
+
     repositories {
         google()
         mavenCentral()

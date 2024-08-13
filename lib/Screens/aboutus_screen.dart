@@ -18,6 +18,7 @@ class AboutUsScreen extends StatelessWidget {
           'A B O U T   U S',
           style: TextStyle(
             color: GlobalColors.mainColor,
+            fontSize: 20,
           ),
         ),
         leading: Builder(
@@ -53,7 +54,7 @@ class AboutUsScreen extends StatelessWidget {
                       'Image Caption Generator for Blind Individuals',
                       style: TextStyle(
                         color: GlobalColors.mainColor,
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
@@ -129,7 +130,7 @@ class AboutUsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildContactUs(),
+              _buildContactUs(context),
               const SizedBox(height: 32),
               _buildCopyright(),
             ],
@@ -254,7 +255,7 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactUs() {
+  Widget _buildContactUs(BuildContext context) {
     return Column(
       children: [
         Text(
@@ -267,18 +268,28 @@ class AboutUsScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
-        _buildContactItem(Icons.email, 'mahmermahmer8@gmail.com',
-            'mailto:mahmermahmer8@gmail.com'),
+        _buildContactItem(
+          context,
+          Icons.email,
+          'mahmermahmer8@gmail.com',
+          'mailto:mahmermahmer8@gmail.com',
+        ),
         const SizedBox(height: 8),
-        _buildContactItem(Icons.phone, 'tel:+1234567890', 'tel:+1234567890'),
+        _buildContactItem(
+          context,
+          Icons.phone,
+          'Phone: 0349 1420673',
+          'tel:+923491420673',
+        ),
       ],
     );
   }
 
-  Widget _buildContactItem(IconData icon, String label, String urlString) {
+  Widget _buildContactItem(
+      BuildContext context, IconData icon, String label, String urlString) {
     final Uri url = Uri.parse(urlString);
     return InkWell(
-      onTap: () => _launchUrl(url),
+      onTap: () => _launchUrl(context, url),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -302,7 +313,7 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _launchUrl(Uri url) async {
+  Future<void> _launchUrl(BuildContext context, Uri url) async {
     if (await canLaunchUrl(url)) {
       await launchUrl(
         url,
@@ -313,7 +324,13 @@ class AboutUsScreen extends StatelessWidget {
         ),
       );
     } else {
-      print('Could not launch $url');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Could not launch URL."),
+          backgroundColor: GlobalColors.textColor,
+        ),
+      );
     }
   }
 

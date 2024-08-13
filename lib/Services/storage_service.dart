@@ -14,7 +14,6 @@ class StorageService {
       TaskSnapshot snapshot = await uploadTask;
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
-      print('Error uploading image: $e');
       return null;
     }
   }
