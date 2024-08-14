@@ -47,37 +47,65 @@ class AuthService {
     return user;
   }
 
-  void startEmailVerificationCheck(Function onVerified, String email) {
-    timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      await checkEmailVerification(onVerified, email);
-    });
+  void startEmailVerificationCheck(Function onVerified, String email) async {
+    stopEmailVerificationCheck();
+    User? user = _auth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+      timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+        await user?.reload();
+        user = FirebaseAuth.instance.currentUser;
+
+        if (user != null && user!.emailVerified) {
+          stopEmailVerificationCheck();
+          onVerified();
+        }
+      });
+    }
+  }
+
+  Future<String> passwordRest(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return 'Password reset email has been sent. Please check your inbox.';
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'user-not-found') {
+        message = 'No user found with this email.';
+      } else {
+        message = 'An error occurred. Please try again later.';
+      }
+      return message;
+    }
+  }
+
+  Future<void> deleteUserIfNotVerified() async {
+    stopEmailVerificationCheck();
+    User? user = _auth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.delete();
+    }
+    await FirebaseAuth.instance.signOut();
   }
 
   void stopEmailVerificationCheck() {
     timer?.cancel();
   }
 
-  Future<void> checkEmailVerification(Function onVerified, String email) async {
-    User? user = _auth.currentUser;
-    await user?.reload();
-    user = FirebaseAuth.instance.currentUser;
-
-    if (user != null && user.emailVerified) {
-      stopEmailVerificationCheck();
-      onVerified();
-    }
+  String getuserId() {
+    return _auth.currentUser!.uid;
   }
 
-  String getuserId()
-  {
-    return _auth.currentUser!.uid;
+  String getuserEmail() {
+    return _auth.currentUser!.email!;
+  }
+
+  User? getcurrentUser() {
+    return _auth.currentUser;
   }
 
   // Sign out
   Future<void> signOut() async {
     await _auth.signOut();
   }
-
-  // Get current user
-  User? get currentUser => _auth.currentUser;
 }

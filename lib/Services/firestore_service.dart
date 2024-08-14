@@ -19,6 +19,16 @@ class FirestoreService {
     });
   }
 
+  // Delete a caption by document ID
+  Future<void> deleteCaption(String captionId) async {
+    await _firestore
+        .collection('users')
+        .doc(_auth.getuserId())
+        .collection('captions')
+        .doc(captionId)
+        .delete();
+  }
+
   // Fetch captions for a user
   Stream<QuerySnapshot> getCaptions() {
     return _firestore
@@ -53,6 +63,18 @@ class FirestoreService {
           .get();
 
       return docSnapshot.exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> isEmailAlreadyUsed(String email) async {
+    try {
+      QuerySnapshot query = await _firestore
+          .collection('users')
+          .where("email", isEqualTo: email)
+          .get();
+      return query.docs.isNotEmpty;
     } catch (e) {
       return false;
     }

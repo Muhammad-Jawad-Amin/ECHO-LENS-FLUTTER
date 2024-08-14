@@ -1,8 +1,8 @@
 import 'package:echo_lens/Widgets/colors_global.dart';
 import 'package:flutter/material.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
-import 'package:echo_lens/Screens/login_screen.dart';
-import 'package:echo_lens/Screens/profilesetup_screen.dart';
+import 'package:echo_lens/Screens/Main/home_screen.dart';
+import 'package:echo_lens/Screens/Startup/login_screen.dart';
+import 'package:echo_lens/Screens/Startup/profilesetup_screen.dart';
 import 'package:echo_lens/Services/auth_service.dart';
 import 'package:echo_lens/services/firestore_service.dart';
 
@@ -25,11 +25,11 @@ class _SplashScreenState extends State<SplashScreen> {
     FirestoreService firestoreService = FirestoreService();
 
     Widget nextPage;
-    if (authService.currentUser != null &&
+    if (authService.getcurrentUser() != null &&
         await firestoreService.isUserDataExists(authService.getuserId())) {
       nextPage = const HomeScreen();
-    } else if (authService.currentUser != null) {
-      nextPage = UserProfileSetup(email: authService.currentUser!.email!);
+    } else if (authService.getcurrentUser() != null) {
+      nextPage = UserProfileSetup(email: authService.getuserEmail());
     } else {
       nextPage = const LoginScreen();
     }

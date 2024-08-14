@@ -55,7 +55,6 @@ class AboutUsScreen extends StatelessWidget {
                       style: TextStyle(
                         color: GlobalColors.mainColor,
                         fontSize: 20,
-                        fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -94,7 +93,6 @@ class AboutUsScreen extends StatelessWidget {
                       style: TextStyle(
                         color: GlobalColors.mainColor,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -116,11 +114,10 @@ class AboutUsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Project Supervisor',
+                      'PROJECT CORDINATOR',
                       style: TextStyle(
                         color: GlobalColors.mainColor,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),

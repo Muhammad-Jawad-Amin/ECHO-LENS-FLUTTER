@@ -149,7 +149,6 @@ class _CaptionScreenState extends State<CaptionScreen> {
                 style: TextStyle(
                   color: GlobalColors.mainColor,
                   fontSize: 20,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(
@@ -181,16 +180,15 @@ class _CaptionScreenState extends State<CaptionScreen> {
                 child: Column(
                   children: [
                     Text(
-                      "GENERATED CAPTION",
+                      "Generated Caption",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: GlobalColors.mainColor,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 15,
                     ),
                     Text(
                       widget.caption,
@@ -219,16 +217,15 @@ class _CaptionScreenState extends State<CaptionScreen> {
                 child: Column(
                   children: [
                     Text(
-                      "AUDIO CONTROLLER",
+                      "Audio Controller",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: GlobalColors.mainColor,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 15,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,

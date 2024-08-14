@@ -1,9 +1,8 @@
 import 'package:echo_lens/Services/firestore_service.dart';
 import 'package:echo_lens/Services/validatiors.dart';
 import 'package:flutter/material.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
+import 'package:echo_lens/Screens/Main/home_screen.dart';
 import 'package:echo_lens/services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:echo_lens/Widgets/button_global.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
 import 'package:echo_lens/Widgets/textform_global.dart';
@@ -32,6 +31,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
       SnackBar(
         content: Text(
           message,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: GlobalColors.themeColor,
           ),
@@ -66,8 +66,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
 
   Future<void> saveProfile(BuildContext context) async {
     try {
-      User? user = authService.currentUser;
-      if (user != null) {
+      if (authService.getcurrentUser() != null) {
         if (!Validators.isValidName(fname.text)) {
           showerrormessage(context, "Please enter a valid First Name.");
         } else if (!Validators.isValidName(lname.text)) {
@@ -87,7 +86,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
           // Displaying a success message
           showerrormessage(
               context, 'Success !!. Profile updated successfully.');
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const HomeScreen(),
             ),

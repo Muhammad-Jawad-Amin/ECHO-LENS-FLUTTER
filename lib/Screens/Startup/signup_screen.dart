@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
+import 'package:echo_lens/Screens/Main/home_screen.dart';
 import 'package:echo_lens/Services/firestore_service.dart';
 import 'package:echo_lens/Services/validatiors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:echo_lens/Screens/profilesetup_screen.dart';
-import 'package:echo_lens/Screens/login_screen.dart';
+import 'package:echo_lens/Screens/Startup/profilesetup_screen.dart';
+import 'package:echo_lens/Screens/Startup/verifyemail_screen.dart';
+import 'package:echo_lens/Screens/Startup/login_screen.dart';
 import 'package:echo_lens/Widgets/textform_global.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
 import 'package:echo_lens/Widgets/button_global.dart';
@@ -30,6 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
       SnackBar(
         content: Text(
           message,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: GlobalColors.themeColor,
           ),
@@ -40,9 +42,9 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> signup(BuildContext context) async {
-    String email = emailController.text;
-    String password = passwordController.text;
-    String confpassword = confpasswordController.text;
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confpassword = confpasswordController.text.trim();
 
     if (!Validators.isValidEmail(email)) {
       showerrormessage(context, 'Please enter a valid Email.');
@@ -60,9 +62,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
         if (user != null) {
           if (!context.mounted) return;
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => UserProfileSetup(email: email),
+              builder: (context) => VerifyEmailScreen(email: email),
             ),
           );
         }
@@ -90,6 +92,12 @@ class _SignupScreenState extends State<SignupScreen> {
       User? user = await authService.loginWithGoogle();
 
       if (user != null) {
+        if (await firestoreService.isEmailAlreadyUsed(user.email!)) {
+          if (!context.mounted) return;
+          showerrormessage(
+              context, "An account has already exists on this email.");
+          return;
+        }
         bool isuserexist = await firestoreService.isUserDataExists(user.uid);
         if (isuserexist) {
           if (!context.mounted) return;
@@ -151,7 +159,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   height: 40,
                 ),
                 Text(
-                  'Create your Account',
+                  'Create your Account:',
                   style: TextStyle(
                     color: GlobalColors.textColor,
                     fontSize: 16,
@@ -201,7 +209,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 40,
                 ),
                 //Social Sign Up
                 Column(
@@ -209,15 +217,16 @@ class _SignupScreenState extends State<SignupScreen> {
                     Container(
                       alignment: Alignment.center,
                       child: Text(
-                        '-OR-',
+                        '- OR -',
                         style: TextStyle(
                           color: GlobalColors.textColor,
                           fontWeight: FontWeight.w600,
+                          fontSize: 20,
                         ),
                       ),
                     ),
                     const SizedBox(
-                      height: 50,
+                      height: 40,
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -228,12 +237,17 @@ class _SignupScreenState extends State<SignupScreen> {
                           },
                           child: Container(
                             height: 55,
-                            width: 300,
                             alignment: Alignment.center,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
                             decoration: BoxDecoration(
                               color: GlobalColors.themeColor,
                               borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: GlobalColors.mainColor),
+                              border: Border.all(
+                                color: GlobalColors.mainColor,
+                                width: 3,
+                              ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -243,7 +257,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   height: 30,
                                 ),
                                 Text(
-                                  "     SIGN UP WITH GOOGLE",
+                                  "     Sign Up With Google",
                                   style: TextStyle(
                                     color: GlobalColors.textColor,
                                     fontSize: 20,
@@ -275,7 +289,7 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const LoginScreen(),
                   ),

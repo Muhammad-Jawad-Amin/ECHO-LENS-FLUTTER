@@ -1,9 +1,9 @@
-import 'package:echo_lens/Screens/aboutus_screen.dart';
-import 'package:echo_lens/Screens/history_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
-import 'package:echo_lens/Screens/login_screen.dart';
-import 'package:echo_lens/Screens/profile_screen.dart';
+import 'package:echo_lens/Screens/Main/aboutus_screen.dart';
+import 'package:echo_lens/Screens/Main/history_screen.dart';
+import 'package:echo_lens/Screens/Main/home_screen.dart';
+import 'package:echo_lens/Screens/Startup/login_screen.dart';
+import 'package:echo_lens/Screens/Main/profile_screen.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
 import 'package:echo_lens/Services/auth_service.dart';
 
@@ -43,8 +43,7 @@ class DrawerGlobal extends StatelessWidget {
                     color: GlobalColors.mainColor,
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const HomeScreen(),
@@ -68,8 +67,7 @@ class DrawerGlobal extends StatelessWidget {
                     color: GlobalColors.mainColor,
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const ProfileScreen(),
@@ -93,8 +91,7 @@ class DrawerGlobal extends StatelessWidget {
                     color: GlobalColors.mainColor,
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => HistoryScreen(),
@@ -118,8 +115,7 @@ class DrawerGlobal extends StatelessWidget {
                     color: GlobalColors.mainColor,
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AboutUsScreen(),
@@ -157,8 +153,7 @@ class DrawerGlobal extends StatelessWidget {
   void logout(BuildContext context) {
     AuthService auth = AuthService();
     auth.signOut();
-    Navigator.pop(context);
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const LoginScreen(),

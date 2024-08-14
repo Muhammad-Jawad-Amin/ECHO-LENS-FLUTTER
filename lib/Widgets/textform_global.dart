@@ -45,14 +45,13 @@ class _TextFormGlobalState extends State<TextFormGlobal> {
         left: 15,
       ),
       decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: GlobalColors.mainColor.withOpacity(0.19),
-              blurRadius: 10,
-            )
-          ]),
+        color: Colors.black,
+        border: Border.all(
+          color: GlobalColors.mainColor,
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(30),
+      ),
       child: TextFormField(
         readOnly: widget.readonly,
         onTap: widget.ontap,

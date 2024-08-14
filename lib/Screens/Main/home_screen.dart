@@ -8,7 +8,7 @@ import 'package:echo_lens/Services/auth_service.dart';
 import 'package:echo_lens/Services/storage_service.dart';
 import 'package:echo_lens/Services/firestore_service.dart';
 import 'package:echo_lens/Services/api_service.dart';
-import 'package:echo_lens/Screens/caption_screen.dart';
+import 'package:echo_lens/Screens/Main/caption_screen.dart';
 import 'package:echo_lens/Widgets/colors_global.dart';
 import 'package:echo_lens/Widgets/button_global.dart';
 
@@ -32,8 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void showerrormessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: GlobalColors.textColor,
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: GlobalColors.themeColor,
+          ),
+        ),
+        backgroundColor: GlobalColors.mainColor,
       ),
     );
   }
@@ -96,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // Check if the user is authenticated
-      var user = _authService.currentUser;
+      var user = _authService.getcurrentUser();
       if (user == null) {
         throw 'User not logged in';
       }
@@ -115,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Save caption and image URL to Firestore
         await _firestoreService.saveCaption(imageUrl!, caption);
 
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => CaptionScreen(
@@ -170,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             color: GlobalColors.mainColor,
             fontSize: 20,
-            fontWeight: FontWeight.w500,
           ),
         ),
         leading: Builder(
@@ -206,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(
-                      height: 40,
+                      height: 50,
                     ),
                     Container(
                       width: 300, // Set the width of the image container
@@ -235,10 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? Image.memory(_imageBytes!, fit: BoxFit.cover)
                               : Image.file(_imageFile!, fit: BoxFit.cover),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 50),
                     ButtonGlobal(
                       buttontext: 'Pick Image From Gallery',
-                      textsize: 20,
                       onPressed: () {
                         _pickImage(context, false);
                       },
@@ -246,7 +250,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     ButtonGlobal(
                       buttontext: 'Click Image Using Camera',
-                      textsize: 20,
                       onPressed: () {
                         _pickImage(context, true);
                       },
@@ -254,13 +257,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     ButtonGlobal(
                       buttontext: 'Clear Image',
-                      textsize: 20,
                       onPressed: _clearImage,
                     ),
                     const SizedBox(height: 10),
                     ButtonGlobal(
                       buttontext: 'Generate Caption',
-                      textsize: 20,
                       onPressed: _generateCaption,
                     ),
                   ],

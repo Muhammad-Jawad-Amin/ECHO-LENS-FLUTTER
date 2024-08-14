@@ -1,8 +1,9 @@
+import 'package:echo_lens/Screens/Startup/forgetpass_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:echo_lens/Screens/home_screen.dart';
-import 'package:echo_lens/Screens/profilesetup_screen.dart';
-import 'package:echo_lens/Screens/signup_screen.dart';
+import 'package:echo_lens/Screens/Main/home_screen.dart';
+import 'package:echo_lens/Screens/Startup/profilesetup_screen.dart';
+import 'package:echo_lens/Screens/Startup/signup_screen.dart';
 import 'package:echo_lens/Services/firestore_service.dart';
 import 'package:echo_lens/Services/validatiors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,14 +22,15 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   AuthService authService = AuthService();
   FirestoreService firestoreService = FirestoreService();
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+  TextEditingController emailcontroller = TextEditingController();
+  TextEditingController passwordcontrller = TextEditingController();
 
   void showerrormessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: GlobalColors.themeColor,
           ),
@@ -55,14 +57,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> signIn(BuildContext context) async {
-    if (!Validators.isValidEmail(email.text)) {
+    final String email = emailcontroller.text.trim();
+    final String password = passwordcontrller.text.trim();
+
+    if (!Validators.isValidEmail(email)) {
       showerrormessage(context, 'Please enter a valid Email.');
-    } else if (!Validators.isValidPassword(password.text)) {
+    } else if (!Validators.isValidPassword(password)) {
       showerrormessage(context,
           'Enter 8-Charater Password contaning at least: 1 Capital, 1 Small Letter & 1 Special Character.');
     } else {
       try {
-        User? user = await authService.login(email.text, password.text);
+        User? user = await authService.login(email, password);
         if (user != null) {
           bool isuserexist = await firestoreService.isUserDataExists(user.uid);
           if (!context.mounted) return;
@@ -123,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 40,
+                  height: 45,
                 ),
                 Center(
                   child: SizedBox(
@@ -132,10 +137,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Image.asset('assets/logo.png')),
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 45,
                 ),
                 Text(
-                  'Login to your Account',
+                  'Login to your Account:',
                   style: TextStyle(
                     color: GlobalColors.textColor,
                     fontSize: 16,
@@ -147,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 // email field
                 TextFormGlobal(
-                  controller: email,
+                  controller: emailcontroller,
                   text: 'Email',
                   textInputType: TextInputType.emailAddress,
                 ),
@@ -156,13 +161,48 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 // password field
                 TextFormGlobal(
-                  controller: password,
+                  controller: passwordcontrller,
                   text: 'Password',
                   textInputType: TextInputType.visiblePassword,
                   password: true,
                 ),
                 const SizedBox(
-                  height: 35,
+                  height: 15,
+                ),
+                Container(
+                  color: GlobalColors.themeColor,
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Don\'t remember your password? ',
+                        style: TextStyle(color: GlobalColors.textColor),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ForgotPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: InkWell(
+                          child: Text(
+                            'Forget Passsword',
+                            style: TextStyle(
+                              color: GlobalColors.mainColor,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
                 ),
                 ButtonGlobal(
                   buttontext: 'LOG IN',
@@ -171,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 40,
                 ),
                 // Social Buttons
                 Column(
@@ -179,15 +219,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       alignment: Alignment.center,
                       child: Text(
-                        '-OR-',
+                        '- OR -',
                         style: TextStyle(
                           color: GlobalColors.textColor,
                           fontWeight: FontWeight.w600,
+                          fontSize: 20,
                         ),
                       ),
                     ),
                     const SizedBox(
-                      height: 50,
+                      height: 40,
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -198,12 +239,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: Container(
                             height: 55,
-                            width: 300,
                             alignment: Alignment.center,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
                             decoration: BoxDecoration(
                               color: GlobalColors.themeColor,
                               borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: GlobalColors.mainColor),
+                              border: Border.all(
+                                color: GlobalColors.mainColor,
+                                width: 3,
+                              ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -213,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 30,
                                 ),
                                 Text(
-                                  "     LOG IN WITH GOOGLE",
+                                  "     Log In With Google",
                                   style: TextStyle(
                                     color: GlobalColors.textColor,
                                     fontSize: 20,
@@ -245,7 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const SignupScreen(),
                   ),
