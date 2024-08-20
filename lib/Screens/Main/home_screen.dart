@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Save caption and image URL to Firestore
         await _firestoreService.saveCaption(imageUrl!, caption);
 
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CaptionScreen(

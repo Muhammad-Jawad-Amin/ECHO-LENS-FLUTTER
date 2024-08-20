@@ -101,7 +101,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => CaptionScreen(

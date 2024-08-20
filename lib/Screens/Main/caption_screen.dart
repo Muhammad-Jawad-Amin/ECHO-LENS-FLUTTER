@@ -131,7 +131,8 @@ class _CaptionScreenState extends State<CaptionScreen> {
                 color: GlobalColors
                     .mainColor, // Custom color for the hamburger icon
                 onPressed: () {
-                  Navigator.of(context).pop(); // Open the drawer
+                  Navigator.of(context).pop();
+                  // Open the drawer
                 },
               );
             },
